@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.dao.mapper.OauthCodeMapperExt" >
+  <resultMap id="BaseResultMap" type="com.example.dao.dto.OauthCodeDto" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="client_id" property="clientId" jdbcType="VARCHAR" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+  </resultMap>
+  <insert id="insert" parameterType="com.example.dao.dto.OauthCodeDto" >
+    insert into oauth_code (id, client_id, user_name,code)
+    values (#{id,jdbcType=VARCHAR}, #{clientId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, 
+      #{code,jdbcType=VARCHAR})
+  </insert>
+
+  <select id="selectByCode" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select user_name,client_id from oauth_code where code = #{code,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteByUsername" parameterType="java.lang.String">
+    delete from oauth_code where user_name = #{username,jdbcType=VARCHAR}
+  </delete>
+</mapper>

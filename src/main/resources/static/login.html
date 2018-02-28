@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<!-- saved from url=(0029)http://10.9.15.77:10031/login -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>统一登录页</title>
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="stylesheet" href="/css/login.css">
+    <script type="text/javascript">
+        var initType = 1;
+        function changeMode(){
+            var div1 = document.getElementById("form01");
+            var div2 = document.getElementById("form02");
+            initType = ~ initType;
+            if(initType == 1){
+                div1.style.display = 'block';
+                div2.style.display = 'none';
+            }else{
+                div1.style.display = 'none';
+                div2.style.display = 'block';
+            }
+            errordiv.style.display='none';
+        }
+        function obtainXmlHttp(){
+            var xmlhttp;    
+            if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+              xmlhttp=new XMLHttpRequest();
+            }else{// code for IE6, IE5
+              xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange=function(){
+                if (xmlhttp.readyState==4 && xmlhttp.status==200){
+                    document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
+                }
+            }
+            return xmlhttp;
+        }
+
+        function changeValidateCode(){
+            var imageId = document.getElementById("captcha");
+            var xmlhttp = obtainXmlHttp();
+            xmlhttp.open("GET","/code/imageCode",true);
+            xmlhttp.send();
+            imageId.src = "/code/imageCode";
+
+        }
+        function sendSmsCode(){
+            var xmlhttp = obtainXmlHttp();
+            var mobileValue = document.getElementById("mobile").value;
+            if(mobileValue == ''){
+                alert("请输入手机号!");
+                return ;
+            }
+            xmlhttp.open("GET","/code/smsCode?mobile=" + mobileValue,true);
+            xmlhttp.send();
+            xmlhttp.onreadystatechange=function(){
+                if(xmlhttp.readyState==4 && xmlhttp.status==200){
+                    var data = xmlhttp.responseText;
+                    if(data === "mobileIsNotExists"){
+                        errordiv.style.display='block';
+                        document.getElementById("errorSpan").innerHTML = "手机号不存在";
+                    }else{
+                        alert("短信验证码已发送,请注意查收");
+                    }
+                };
+            };
+        }
+        window.onload= function(){
+            var url = location.href;
+            if(url.indexOf("error=") != -1){
+                var errorMessage;
+                switch(url.split("=")[1]){
+                    case "UsernameOrPasswordError":
+                        errorMessage = "用户名或密码错误";
+                    break;
+                    case "vCodeIsNull":
+                        errorMessage = "验证码不存在";
+                    break;
+                    case "pageVCodeIsNull":
+                        errorMessage = "验证码为空";
+                    break;
+                    case "vCodeIsExpired":
+                        errorMessage = "验证码已经过期";
+                    break;
+                    case "pageVCodeIsError":
+                        errorMessage = "验证码错误";
+                    break;
+                    case "mobileIsNull":
+                        errorMessage = "手机号不存在";
+                    break;
+                    case "pageMobileIsNull":
+                        errorMessage = "手机号为空";
+                     break;
+                    case "pageMobileIsError":
+                        errorMessage = "手机号错误";
+                     break;
+                }
+                errordiv.style.display='block';
+                document.getElementById("errorSpan").innerHTML = errorMessage;
+            }else{
+                errordiv.style.display='none';
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+<div id="root">
+    <div class="login-page">
+        <div class="animated-background daytime" id="cloud">
+        <canvas width="1366" height="625"></canvas></div>
+    
+        <div class="login-from-container">
+            <div class="login-form captcha">
+                <div class="login-box">
+                    <div class="login-title"><a onclick="changeMode()">统一登录页</a></div>
+                    <div id="errordiv" class="error" style="display:none">错误信息: <span id="errorSpan"></span></div>
+                    <div id="form01">
+                        <form class="static-form" action="/login_test" method="post">
+                            <!--错误提示-->
+                            <div class="filed username-filed">
+                                <label class="user"><i class="icon-user"></i></label>
+                                <input type="text" name="username" placeholder="用户名">
+                            </div>
+                            <div class="filed password-filed">
+                                <label><i class="icon-password"></i></label>
+                                <input type="password" name="password" placeholder="密码">
+                            </div>
+                            <div class="filed captcha-filed">
+                                <label for="captcha"><i class="icon-captcha"></i></label>
+                                <input type="text" name="validateCode" placeholder="验证码" autocomplete="false">
+                                <img class="captcha" id="captcha" onclick="changeValidateCode()" src="/code/imageCode">
+                            </div>
+                            <div class="submit">
+                                <button type="submit" class="login-btn" >登 录</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="form02" style="display: none">
+                        <form class="static-form" action="/login_test1" method="post">
+                        <!--错误提示-->
+                        <div class="filed username-filed">
+                            <label class="user"><i class="icon-user"></i></label>
+                            <input id="mobile" type="text" name="mobile" placeholder="手机号">
+                        </div>
+                        <div class="filed captcha-filed">
+                            <label for="captcha"><i class="icon-captcha"></i></label>
+                            <input type="text" name="smsCode" placeholder="验证码" autocomplete="false">
+                            <a onclick="sendSmsCode()">发送验证码</a>
+                        </div>
+                        <div class="submit">
+                            <button type="submit" class="login-btn">登 录</button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
+
+</html>
